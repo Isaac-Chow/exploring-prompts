@@ -31,7 +31,7 @@ class AgentResponse(BaseModel):
         default_factory=list,
         description="Key takeaways as bullet points"
     )
-    reference: list[Reference] = Field(
+    references: list[Reference] = Field(
         ...,
         min_length=1,
         description="List of unique references supporting the answer"

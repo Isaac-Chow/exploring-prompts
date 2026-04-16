@@ -39,4 +39,18 @@
 
     ]]>
     </system_prompt>
+
+    <user_template>
+        <![CDATA[
+<user_query>
+{question}
+</user_query>
+
+<search_results>
+{search_results}
+</search_results>
+
+Analyze the search results and provide a comprehensive answer following the output structure.
+        ]]>
+    </user_template>
 </prompt>

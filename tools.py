@@ -2,7 +2,8 @@ import os
 from models import SearchResult
 
 try:
-    from duckduckgo_search import DDGS
+    # from duckduckgo_search import DDGS
+    from ddgs import DDGS
     HAS_DUCKDUCKGO = True
 except ImportError:
     HAS_DUCKDUCKGO = False
@@ -13,7 +14,22 @@ try:
 except ImportError:
     HAS_HTTPX = False
 
-class WebSearchTool:
+class BaseSearchTool:
+    """Base class for search tools providing common helper methods."""
+
+    def format_results(self, results: list[SearchResult]) -> str:
+        """Format search results for prompt injection."""
+        if not results:
+            return "No search results found."
+
+        formatted = []
+        for idx, result in enumerate(results, start=1):
+            formatted.append(
+                f"[{idx}] {result.title}\n{result.url}\n{result.snippet}"
+            )
+        return "\n\n".join(formatted)
+
+class WebSearchTool(BaseSearchTool):
     """Web search tool using DuckDuckGo."""
 
     def __init__(self, max_results: int = 5):
@@ -32,9 +48,9 @@ class WebSearchTool:
             with DDGS() as ddgs:
                 for r in ddgs.text(query, max_results=self.max_results):
                     results.append(SearchResult(
-                        title=r.get("title","No title"),
-                        url=r.get("href",r.get("link","")),
-                        snippet=r.get("body",r.ge)
+                        title=r.get("title", "No title"),
+                        url=r.get("href", r.get("link", "")),
+                        snippet=r.get("body", "")
                     ))
             return results
         except Exception as e:
@@ -61,7 +77,7 @@ class WebSearchTool:
             ),
         ]
 
-class SerpAPITool:
+class SerpAPITool(BaseSearchTool):
     """Alternative web search tool using SerpAPI (requires API key).
     Set SERPAPI_KEY environment variable."""
     
@@ -100,7 +116,7 @@ class SerpAPITool:
             print(f"SerpAPI error: {e}")
             return []
         
-class TavilySearchTool:
+class TavilySearchTool(BaseSearchTool):
     """Search using Tavily API (Optimized for AI/LLM use)
     Set TAVILY_API_KEY environment variable."""
     
